@@ -93,6 +93,18 @@ $ dataclean restore before-migration --force
 
 ---
 
+## Common problems this solves
+
+- "reset docker compose volumes"
+- "restore docker database to clean state"
+- "docker volume snapshot tool"
+- "undo docker migration locally"
+- "reset local dev database docker"
+- "docker compose data wipe takes too long"
+- "switch git branch different schema docker"
+
+---
+
 ## Get it
 
 👉 [Download on Gumroad](https://ecent.gumroad.com/l/sklwb)
@@ -107,6 +119,10 @@ $ dataclean restore before-migration --force
 | **[envgraph](https://github.com/stackgen-cli/envgraph)** | Scan and validate environment variable usage |
 | **[compose-diff](https://github.com/stackgen-cli/compose-diff)** | Semantic Docker Compose diff |
 | **[devcheck](https://github.com/stackgen-cli/devcheck)** | Local project readiness inspector |
+
+---
+
+If this tool saved you time, consider starring the repo.
 
 ---
 
