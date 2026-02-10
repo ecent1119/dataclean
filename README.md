@@ -24,6 +24,16 @@ Snapshot, restore, and reset Docker Compose data volumes for rapid development i
 
 ---
 
+## New in v2.0
+
+- **Snapshot tagging** — add tags for organization and filtering
+- **Metadata support** — add descriptions and custom metadata
+- **Include/exclude filters** — snapshot only specific volumes
+- **Size reporting** — see snapshot sizes and datastore breakdowns
+- **Retention policies** — auto-cleanup old snapshots
+
+---
+
 ## Example output
 
 ```bash
@@ -85,9 +95,9 @@ $ dataclean restore before-migration --force
 
 ## Get it
 
-**$29** — one-time purchase, standalone macOS/Linux/Windows binary.
+**$39** — one-time purchase, standalone macOS/Linux/Windows binary.
 
-👉 [Download on Gumroad](YOUR_GUMROAD_LINK_HERE)
+👉 [Download on Gumroad](https://ecent.gumroad.com/l/sklwb)
 
 ---
 

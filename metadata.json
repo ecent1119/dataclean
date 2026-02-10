@@ -1,0 +1,29 @@
+{
+  "product": {
+    "name": "dataclean",
+    "tagline": "Snapshot, restore, and reset Docker Compose data volumes for rapid development iteration",
+    "description": "Auto-detects Docker Compose volumes, creates named snapshots, restores instantly, and resets to clean baseline. Safe by default with confirmation for destructive operations.",
+    "price": {
+      "amount": 12.00,
+      "currency": "USD",
+      "type": "one-time"
+    },
+    "category": "Developer Tools",
+    "tags": ["docker", "docker-compose", "volumes", "snapshots", "database", "devops", "cli"],
+    "platforms": ["darwin-amd64", "darwin-arm64", "linux-amd64", "linux-arm64"],
+    "requirements": {
+      "os": ["macOS", "Linux"],
+      "dependencies": ["docker", "docker-compose"]
+    },
+    "links": {
+      "documentation": "https://github.com/stackgen-cli/dataclean",
+      "support": "https://github.com/stackgen-cli/dataclean/issues"
+    },
+    "metadata": {
+      "license": "Proprietary",
+      "author": "StackGen CLI",
+      "created": "2024-01-01",
+      "version": "1.0.0"
+    }
+  }
+}
