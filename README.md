@@ -1,131 +1,229 @@
 # dataclean
 
+**Free and open source** — Local Dev Data Reset & Snapshot Tool
+
 Snapshot, restore, and reset Docker Compose data volumes for rapid development iteration.
 
----
-
-## The problem
-
-- "Let me just wipe the database and start fresh" → 20 minutes later
-- Migration testing requires clean state repeatedly
-- Switching branches with different schema versions
-- "It worked before I ran that migration"
-- Manual volume cleanup is error-prone
-
----
-
-## What it does
-
-- Auto-detects Docker Compose volumes
-- Creates named snapshots of current data state
-- Restores snapshots instantly
-- Resets to clean baseline
-- Safe by default — destructive ops require confirmation
-
----
-
-## New in v2.0
-
-- **Snapshot tagging** — add tags for organization and filtering
-- **Metadata support** — add descriptions and custom metadata
-- **Include/exclude filters** — snapshot only specific volumes
-- **Size reporting** — see snapshot sizes and datastore breakdowns
-- **Retention policies** — auto-cleanup old snapshots
-
----
-
-## Example output
+## Quick Start
 
 ```bash
-$ dataclean snapshot before-migration
-📸 Creating snapshot: before-migration
-
-  • myapp_postgres_data (postgres)
-  • myapp_redis_data (redis)
-
-✅ Snapshot created: before-migration
-   Size: 45.2 MB
-   Path: .dataclean/before-migration/
-
-$ dataclean list
-NAME               CREATED           SIZE     VOLUMES
-before-migration   2024-01-15 14:30  45.2 MB  2
-fresh-install      2024-01-14 09:15  12.1 MB  2
-
-$ dataclean restore before-migration --force
-🔄 Restoring snapshot...
-✅ Restored snapshot: before-migration
+# In a directory with docker-compose.yaml
+dataclean snapshot before-migration   # Save current state
+dataclean list                        # Show snapshots
+dataclean restore before-migration    # Restore saved state
+dataclean reset                       # Wipe to empty state
 ```
 
----
+## Features
+
+- **Auto-detection**: Finds volumes from `compose.yaml` / `docker-compose.yaml`
+- **Smart datastore detection**: Recognizes Postgres, MySQL, Redis, MongoDB, Neo4j
+- **Safe by default**: Destructive operations require `--force` or confirmation
+- **Auto-backup**: Creates backup before restore/reset operations
+- **Project-local**: Snapshots stored in `.dataclean/` (gitignore-friendly)
+- **Snapshot tagging**: Add tags for organization and filtering
+- **Metadata support**: Add descriptions and custom metadata to snapshots
+- **Include/exclude filters**: Snapshot only specific volumes
+- **Size reporting**: See snapshot sizes and datastore size breakdowns
+- **Retention policies**: Auto-cleanup old snapshots
+
+## Installation
+
+### macOS (Homebrew)
+
+```bash
+brew install stackgen-cli/tap/dataclean
+```
+
+### Manual Installation
+
+Download from [releases](https://github.com/stackgen-cli/dataclean/releases) and add to PATH:
+
+```bash
+# macOS/Linux
+chmod +x dataclean
+sudo mv dataclean /usr/local/bin/
+```
+
+### From Source
+
+```bash
+git clone https://github.com/stackgen-cli/dataclean
+cd dataclean
+make build
+```
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `dataclean snapshot [name]` | Create named snapshot |
-| `dataclean restore <name>` | Restore from snapshot |
-| `dataclean reset` | Wipe to empty state |
-| `dataclean list` | Show available snapshots |
+### `dataclean snapshot [name]`
 
----
+Create a named snapshot of current data state.
 
-## Supported datastores
+```bash
+dataclean snapshot                    # auto-named: snapshot-2024-01-15-143052
+dataclean snapshot before-migration   # named: before-migration
+dataclean snapshot --dry-run          # preview only
+dataclean snapshot --tag production   # add a tag
+dataclean snapshot --description "Before schema v2 migration"
+dataclean snapshot --include postgres_data --include redis_data
+dataclean snapshot --exclude tmp_cache
+```
 
-| Datastore | Detection |
-|-----------|-----------|
-| PostgreSQL | `postgres:*` images |
-| MySQL/MariaDB | `mysql:*`, `mariadb:*` images |
-| Redis | `redis:*` images |
-| MongoDB | `mongo:*` images |
-| Neo4j | `neo4j:*` images |
-| Generic | Any Docker volume |
+### `dataclean restore <name>`
 
----
+Restore data from a named snapshot. **Destructive** - replaces current data.
 
-## Scope
+```bash
+dataclean restore before-migration          # prompts for confirmation
+dataclean restore before-migration --force  # skip confirmation
+dataclean restore before-migration --dry-run
+```
 
-- Local development and testing only
-- Destructive operations gated by `--force` or confirmation
-- Auto-backup before restore/reset
-- No production use
-- No telemetry
+### `dataclean reset`
 
----
+Wipe all volumes to empty state. **Destructive** - deletes all data.
 
-## Common problems this solves
+```bash
+dataclean reset          # prompts for confirmation
+dataclean reset --force  # skip confirmation
+dataclean reset --dry-run
+```
 
-- "reset docker compose volumes"
-- "restore docker database to clean state"
-- "docker volume snapshot tool"
-- "undo docker migration locally"
-- "reset local dev database docker"
-- "docker compose data wipe takes too long"
-- "switch git branch different schema docker"
+### `dataclean list`
 
----
+Show all available snapshots.
 
-## Get it
+```bash
+dataclean list
+```
 
-👉 [Download on Gumroad](https://ecent.gumroad.com/l/sklwb)
+Output:
 
----
+```
+NAME               CREATED           SIZE    VOLUMES
+before-migration   2024-01-15 14:30  45.2 MB 3
+fresh-install      2024-01-14 09:15  12.1 MB 3
+```
 
-## Related tools
+## Configuration
 
-| Tool | Purpose |
-|------|---------|
-| **[stackgen](https://github.com/stackgen-cli/stackgen)** | Generate local dev Docker Compose stacks |
-| **[envgraph](https://github.com/stackgen-cli/envgraph)** | Scan and validate environment variable usage |
-| **[compose-diff](https://github.com/stackgen-cli/compose-diff)** | Semantic Docker Compose diff |
-| **[devcheck](https://github.com/stackgen-cli/devcheck)** | Local project readiness inspector |
+dataclean works with zero configuration by auto-detecting from `compose.yaml`.
 
----
+For advanced use, create `.dataclean.yaml`:
 
-If this tool saved you time, consider starring the repo.
+```yaml
+# Optional: explicit compose file path
+compose_file: docker-compose.yaml
 
----
+# Optional: only snapshot these volumes (default: all)
+include_volumes:
+  - postgres_data
+  - redis_data
+
+# Optional: exclude these volumes
+exclude_volumes:
+  - tmp_cache
+
+# Optional: override datastore type detection
+datastore_hints:
+  custom_volume: postgres
+
+# Optional: custom snapshot directory
+snapshot_dir: .dataclean
+
+# Optional: auto-backup before restore/reset (default: true)
+backup_before_restore: true
+```
+
+## Supported Datastores
+
+| Datastore | Detection | Native Tools |
+|-----------|-----------|--------------|
+| PostgreSQL | `postgres:*` images, `/var/lib/postgresql` | `pg_dump` / `pg_restore` |
+| MySQL/MariaDB | `mysql:*`, `mariadb:*` images | `mysqldump` / `mysql` |
+| Redis | `redis:*` images | `redis-cli --rdb` |
+| MongoDB | `mongo:*` images | `mongodump` / `mongorestore` |
+| Neo4j | `neo4j:*` images | Volume backup |
+| Generic | Any other volume | `tar` archive |
+
+## Flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--force` | `-f` | Skip confirmation prompts |
+| `--dry-run` | | Preview without making changes |
+| `--quiet` | `-q` | Minimal output (for CI/scripts) |
+| `--config` | | Specify config file path |
+
+## Example Workflow
+
+```bash
+# Start fresh development environment
+docker compose up -d
+dataclean snapshot fresh-install
+
+# Work on feature, add test data
+# ... development ...
+
+# Need to test migration? Save current state
+dataclean snapshot before-migration
+
+# Run migration
+./migrate.sh
+
+# Something went wrong? Restore
+dataclean restore before-migration --force
+
+# Start completely fresh
+dataclean reset --force
+dataclean restore fresh-install --force
+```
+
+## Snapshot Storage
+
+Snapshots are stored in `.dataclean/` in your project directory:
+
+```
+.dataclean/
+├── before-migration/
+│   ├── metadata.yaml
+│   ├── myproject_postgres_data.tar.gz
+│   └── myproject_redis_data.tar.gz
+└── fresh-install/
+    ├── metadata.yaml
+    └── ...
+```
+
+Add to `.gitignore`:
+
+```
+.dataclean/
+```
+
+## Part of the Docker Dev Toolchain
+
+dataclean is part of the local development toolchain:
+
+1. **[stackgen](https://github.com/ecent1119/stackgen)** → Generate local dev stacks
+2. **[envgraph](https://github.com/ecent1119/envgraph)** → Inspect & validate config/env
+3. **dataclean** → Manage local data state
+
+## Support This Project
+
+**dataclean is free and open source.**
+
+If this tool saved you time, consider sponsoring:
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-❤️-red?logo=github)](https://github.com/sponsors/ecent1119)
+
+Your support helps maintain and improve this tool.
 
 ## License
 
-MIT — this repository contains documentation and examples only.
+MIT License. See [LICENSE](LICENSE).
+
+## Disclaimer
+
+**For local development and testing only.**
+
+This tool performs destructive operations on Docker volumes. Always ensure you have backups of important data. See [DISCLAIMER.md](DISCLAIMER.md).
